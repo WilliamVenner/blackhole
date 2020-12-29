@@ -6,9 +6,21 @@
 
 [![Travis CI Build Status](https://travis-ci.com/WilliamVenner/blackhole.svg?token=GXuyFsyVxqMmbV5zG6B4&branch=master)](https://travis-ci.com/github/WilliamVenner/blackhole)
 
-Blackhole is a simple program that creates a folder in your computer's home directory where **files may not return**.
+Blackhole is a simple program that creates a folder in your computer's home directory where **_files may not return_**.
 
-Every time you start your computer/log into your user account, the Blackhole directory is moved to your computer's Recycle Bin/Trash, where you can restore it if needed.
+Every time you start your computer/log into your user account, if contents are present, the Blackhole directory is moved to your computer's Recycle Bin/Trash, where you can restore it if needed.
+
+## Use Cases
+
+* Temporary downloads
+* Temporary torrents
+* Temporary extractions of specific files in archives (`.zip`, `.tar`, `.rar`, etc)
+* Temporary storage for files waiting to be uploaded elsewhere, e.g. via FTP
+* Temporary downloads of files from instant messaging
+* A recoverable/very large/non-volatile (but slower) ramdisk
+* A glorified temp folder/recycle bin
+
+_And much more..._
 
 ## Releases
 
@@ -34,7 +46,7 @@ The `$BLACKHOLE` directory will automatically be added to the Quick Access locat
 
 ## Linux & MacOS
 
-Purging the Blackhole at startup is not yet supported on these operating systems.
+Automcatically scheduling the Blackhole to be purged at startup is not yet supported on these operating systems.
 
 If you know Rust and a bit about your favourite OS, pull requests are appreciated.
 
