@@ -38,6 +38,8 @@ Purging the Blackhole at startup is not yet supported on these operating systems
 
 If you know Rust and a bit about your favourite OS, pull requests are appreciated.
 
+If you simply want to do it yourself, just run the program with the `--purge` flag at startup.
+
 #### File Location
 
 `$HOME/$BLACKHOLE`
