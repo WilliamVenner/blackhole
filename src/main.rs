@@ -1,4 +1,4 @@
-#![windows_subsystem = "windows"]
+#![cfg_attr(feature="gui", windows_subsystem = "windows")]
 
 use std::env;
 
