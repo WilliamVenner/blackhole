@@ -1,5 +1,3 @@
-#![windows_subsystem = "windows"]
-
 [package]
 name = "blackhole"
 version = "1.0.0"
