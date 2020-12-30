@@ -8,7 +8,7 @@ use winapi::{self, um::winbase::CREATE_NO_WINDOW};
 
 // Bind SHChangeNotify
 extern "system" {
-	pub fn SHChangeNotify(
+	pub unsafe fn SHChangeNotify(
 		wEventId: winapi::um::winnt::LONG,
 		uFlags: winapi::shared::minwindef::UINT,
 		dwItem1: winapi::shared::minwindef::LPCVOID,
@@ -49,18 +49,14 @@ impl Windows for Blackhole {
 
 	// SHChangeNotify(SHCNE_UPDATEDIR, ...) tell a file or directory to update its icon
 	fn change_notify(ptr: *const winapi::ctypes::c_void) {
-		unsafe {
-			SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATHW, ptr, std::ptr::null_mut());
-		}
+		unsafe { SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATHW, ptr, std::ptr::null_mut()); }
 	}
 
 	// Sets Windows file attributes
 	fn set_file_attributes(path: &std::path::PathBuf, attr: winapi::shared::minwindef::DWORD) -> *const u16 {
 		let path_utf16: Vec<u16> = path.as_os_str().encode_wide().chain(iter::once(0)).collect();
 		let path_utf16_ptr = path_utf16.as_ptr();
-		unsafe {
-			winapi::um::fileapi::SetFileAttributesW(path_utf16_ptr, attr);
-		}
+		unsafe { winapi::um::fileapi::SetFileAttributesW(path_utf16_ptr, attr); }
 		return path_utf16_ptr;
 	}
 
