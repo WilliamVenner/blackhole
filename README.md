@@ -4,7 +4,7 @@
 
 ## Blackhole
 
-[![Travis CI Build Status](https://travis-ci.com/WilliamVenner/blackhole.svg?token=GXuyFsyVxqMmbV5zG6B4&branch=master)](https://travis-ci.com/github/WilliamVenner/blackhole)
+[![GitHub Actions Build Status](https://github.com/WilliamVenner/blackhole/workflows/build/badge.svg)](https://github.com/WilliamVenner/blackhole/actions?query=workflow%3Abuild)
 
 Blackhole is a simple program that creates a folder in your computer's home directory where **_files may not return_**.
 
@@ -46,7 +46,7 @@ The `$BLACKHOLE` directory will automatically be added to the Quick Access locat
 
 ## Linux & MacOS
 
-Automcatically scheduling the Blackhole to be purged at startup is not yet supported on these operating systems.
+Automatically scheduling the Blackhole to be purged at startup is currently only supported on macOS.
 
 If you know Rust and a bit about your favourite OS, pull requests are appreciated.
 
