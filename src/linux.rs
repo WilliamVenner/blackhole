@@ -12,34 +12,31 @@ impl Linux for Blackhole {
 	fn copy_executable() {
 		// Locate the executable folder and symlink us there
 		let mut new_exe_path = match dirs::executable_dir() {
-			Ok(new_exe_path) => new_exe_path,
-			Err(error) => {
-				Show::panic("Error getting executable directory: {}", error);
-				return;
-			}
+			Some(new_exe_path) => new_exe_path,
+			None => return
 		};
 
 		new_exe_path.push("blackhole");
 
-		let exe_path = match std::env::current_exe() {
+		let exe_path = match env::current_exe() {
 			Ok(exe_path) => exe_path,
 			Err(error) => {
-				Show::panic("Error getting executable path: {}", error);
+				Show::panic(&format!("Error getting executable path: {}", error));
 				return;
 			}
 		};
 
 		if exe_path == new_exe_path { return }
 
-		match fs::rename() {
-			Ok(_) => return,
+		match fs::rename(&exe_path, &new_exe_path) {
+			Ok(_) => (),
 			Err(error) => {
-				Show::panic("Error moving executable to executables path: {}", error);
+				Show::panic(&format!("Error moving executable to executables path: {}", error));
 				return;
 			}
 		}
 
-		Show::msg("Blackhole executable has been moved to {}", new_exe_path);
+		Show::msg(&format!("Blackhole executable has been moved to {}", new_exe_path.display()));
 	}
 
 	fn chores(&self) {
