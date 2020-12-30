@@ -8,7 +8,7 @@ use winapi::{self, um::winbase::CREATE_NO_WINDOW};
 
 // Bind SHChangeNotify
 extern "system" {
-	pub unsafe fn SHChangeNotify(
+	pub fn SHChangeNotify(
 		wEventId: winapi::um::winnt::LONG,
 		uFlags: winapi::shared::minwindef::UINT,
 		dwItem1: winapi::shared::minwindef::LPCVOID,

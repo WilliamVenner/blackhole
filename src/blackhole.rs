@@ -1,7 +1,7 @@
 pub mod blackhole {
 	use crate::Show;
 
-	use std::{ffi::OsString, collections::HashSet, fs, io};
+	use std::{collections::HashSet, fs, io};
 	use dirs;
 	use trash;
 	use lazy_static::lazy_static;
@@ -70,6 +70,7 @@ pub mod blackhole {
 			}
 		}
 
+		#[cfg(target_os = "macos")]
 		fn move_n_purge(&self) -> Result<bool, io::Error> {
 			let mut temp_blackhole = self.path.to_owned();
 			temp_blackhole.push("$BLACKHOLE");
@@ -138,13 +139,11 @@ pub mod blackhole {
 
 			// On MacOS, it is not possible to add folders to the "Favourites" sidebar in Finder because Apple deprecated the API and provided no alternative.
 			// So that the user can still pin the Blackhole to their Favourites, we move all the contents into a new $BLACKHOLE directory which is then moved to the trash instead.
-			if cfg!(target_os="macos") {
-				match self.move_n_purge() {
-					Err(error) => Show::panic(&format!("Failed to PURGE blackhole directory (\"{:?}\") at {:?}", error, self.path)),
-					Ok(_) => ()
-				}
-				return;
-			}
+			#[cfg(target_os = "macos")]
+			match self.move_n_purge() {
+				Err(error) => { Show::panic(&format!("Failed to PURGE blackhole directory (\"{:?}\") at {:?}", error, self.path)); return },
+				Ok(_) => return
+			};
 
 			match trash::delete(&self.path) {
 				Err(error) => Show::panic(&format!("Failed to PURGE blackhole directory (\"{:?}\") at {:?}", error, self.path)),
