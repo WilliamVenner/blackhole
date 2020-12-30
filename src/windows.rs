@@ -65,8 +65,8 @@ impl Windows for Blackhole {
 		Blackhole::powershell(format!("$o = new-object -com shell.application\n$o.Namespace('{}').Self.InvokeVerb('pintohome')", path.display()));
 
 		let quick_access_folder_path = match CString::new("shell:::{679f85cb-0220-4080-b29b-5540cc05aab6}") {
-		    Ok(quick_access_folder_path) => quick_access_folder_path,
-		    Err(err) => { Show::error(&format!("String conversion error: {}", err)); return; }
+			Ok(quick_access_folder_path) => quick_access_folder_path,
+			Err(err) => { Show::error(&format!("String conversion error: {}", err)); return; }
 		};
 		Blackhole::change_notify(quick_access_folder_path.as_ptr() as *const _);
 	}
