@@ -1,7 +1,7 @@
 pub mod blackhole {
 	use crate::Show;
 
-	use std::{collections::HashSet, fs, io};
+	use std::{collections::HashSet, ffi::OsString, fs, io};
 	use dirs;
 	use trash;
 	use lazy_static::lazy_static;
