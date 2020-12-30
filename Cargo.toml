@@ -1,6 +1,6 @@
 [package]
 name = "blackhole"
-version = "1.1.0"
+version = "1.2.0"
 authors = ["William Venner <william@venner.io>"]
 edition = "2018"
 repository = "https://github.com/WilliamVenner/blackhole"
@@ -13,24 +13,25 @@ identifier = "com.venner.blackhole"
 icon = ["src/assets/blackhole.ico"]
 
 [features]
-gui = ["msgbox"]
+gui = ["msgbox", "opener"]
 
 [dependencies]
 dirs = "3.0"
 trash = "1.2"
 msgbox = { version = "0.6.0", optional = true }
+opener = { version = "0.4.1", optional = true }
 lazy_static = "1.4.0"
 
-[target.'cfg(target_os = "macos")'.dependencies]
+[target.'cfg(target_os="macos")'.dependencies]
 embed_plist = "1.2"
 cocoa = "0.24.0"
 objc = { version = "0.2.7", features = ["exception"] }
 
-[target.'cfg(target_os = "windows")'.dependencies]
+[target.'cfg(target_os="windows")'.dependencies]
 powershell_script = "0.1"
 winapi = { version = "0.3", features = ["winuser"] }
 rust-ini = "0.16"
 winreg = "0.8"
 
-[target.'cfg(target_os = "windows")'.build-dependencies]
+[target.'cfg(target_os="windows")'.build-dependencies]
 winres = "0.1"

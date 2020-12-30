@@ -6,11 +6,11 @@ pub mod blackhole {
 	use trash;
 	use lazy_static::lazy_static;
 
-	#[cfg(target_os = "windows")]
+	#[cfg(target_os="windows")]
 	lazy_static! { static ref EMPTY_DIR_FILTER: HashSet<&'static str> = HashSet::from(["desktop.ini"].iter().cloned().collect()); }
-	#[cfg(target_os = "macos")]
+	#[cfg(target_os="macos")]
 	lazy_static! { static ref EMPTY_DIR_FILTER: HashSet<&'static str> = [".DS_Store", "Icon\r"].iter().cloned().collect(); }
-	#[cfg(not(any(target_os = "windows", target_os = "macos")))]
+	#[cfg(not(any(target_os="windows", target_os="macos")))]
 	lazy_static! { static ref EMPTY_DIR_FILTER: HashSet<&'static str> = return HashSet::new(); }
 	
 	pub struct Blackhole {
@@ -36,7 +36,7 @@ pub mod blackhole {
 			if should_purge { new.purge() }
 			
 			// Run any chores
-			#[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
+			#[cfg(any(target_os="windows", target_os="linux", target_os="macos"))]
 			new.chores();
 
 			Ok(new)
@@ -70,7 +70,7 @@ pub mod blackhole {
 			}
 		}
 
-		#[cfg(target_os = "macos")]
+		#[cfg(target_os="macos")]
 		fn move_n_purge(&self) -> Result<bool, io::Error> {
 			let mut temp_blackhole = self.path.to_owned();
 			temp_blackhole.push("$BLACKHOLE");
@@ -139,7 +139,7 @@ pub mod blackhole {
 
 			// On MacOS, it is not possible to add folders to the "Favourites" sidebar in Finder because Apple deprecated the API and provided no alternative.
 			// So that the user can still pin the Blackhole to their Favourites, we move all the contents into a new $BLACKHOLE directory which is then moved to the trash instead.
-			#[cfg(target_os = "macos")]
+			#[cfg(target_os="macos")]
 			match self.move_n_purge() {
 				Err(error) => { Show::panic(&format!("Failed to PURGE blackhole directory (\"{:?}\") at {:?}", error, self.path)); return },
 				Ok(_) => return
@@ -156,7 +156,7 @@ pub mod blackhole {
 		}
 	}
 
-	#[cfg(target_os = "windows")] use crate::windows::Windows;
-	#[cfg(target_os = "linux")]   use crate::linux::Linux;
-	#[cfg(target_os = "macos")]   use crate::macos::MacOS;
+	#[cfg(target_os="windows")] use crate::windows::Windows;
+	#[cfg(target_os="linux")]   use crate::linux::Linux;
+	#[cfg(target_os="macos")]   use crate::macos::MacOS;
 }
