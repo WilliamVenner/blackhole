@@ -105,7 +105,7 @@ impl MacOS for Blackhole {
 
 		if temp_blackhole.is_file() {
 			match trash::delete(&temp_blackhole) {
-				Err(error) => Show::panic(&format!("Failed to delete $BLACKHOLE/$BLACKHOLE (please don't create a $BLACKHOLE file inside your blackhole? You are messing with space-time) (\"{:?}\") at {:?}", error, self.path)),
+				Err(error) => Show::panic(&format!("Failed to delete $BLACKHOLE/$BLACKHOLE (please don't create a $BLACKHOLE file inside your blackhole? You are messing with space-time) ({:?}) at {:?}", error, self.path)),
 				Ok(_) => ()
 			}
 		}
@@ -113,13 +113,13 @@ impl MacOS for Blackhole {
 		// If the temporary blackhole already exists, move it to the trash first
 		if temp_blackhole.is_dir() {
 			match trash::delete(&temp_blackhole) {
-				Err(error) => Show::panic(&format!("Failed to delete restored(?) $BLACKHOLE/$BLACKHOLE directory (\"{:?}\") at {:?}", error, self.path)),
+				Err(error) => Show::panic(&format!("Failed to delete restored(?) $BLACKHOLE/$BLACKHOLE directory ({:?}) at {:?}", error, self.path)),
 				Ok(_) => ()
 			}
 		}
 
 		match fs::create_dir(&temp_blackhole) {
-			Err(error) => Show::panic(&format!("Failed to create temporary $BLACKHOLE/$BLACKHOLE directory during purge (\"{:?}\") at {:?}", error, self.path)),
+			Err(error) => Show::panic(&format!("Failed to create temporary $BLACKHOLE/$BLACKHOLE directory during purge ({:?}) at {:?}", error, self.path)),
 			Ok(_) => ()
 		}
 
@@ -145,7 +145,7 @@ impl MacOS for Blackhole {
 		
 		// Finally, let's delete it
 		match trash::delete(&temp_blackhole) {
-			Err(error) => Show::panic(&format!("Failed to delete temporary $BLACKHOLE/$BLACKHOLE directory during purge (\"{:?}\") at {:?}", error, self.path)),
+			Err(error) => Show::panic(&format!("Failed to delete temporary $BLACKHOLE/$BLACKHOLE directory during purge ({:?}) at {:?}", error, self.path)),
 			Ok(_) => ()
 		}
 

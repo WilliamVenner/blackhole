@@ -62,7 +62,7 @@ pub mod blackhole {
 			if self.path.is_dir() { return };
 
 			match fs::create_dir(&self.path) {
-				Err(error) => Show::panic(&format!("Failed to CREATE blackhole directory (\"{:?}\") at {:?}", error, self.path)),
+				Err(error) => Show::panic(&format!("Failed to CREATE blackhole directory ({:?}) at {:?}", error, self.path)),
 				Ok(_) => println!("Created At: {}", self.path.display())
 			}
 		}
@@ -78,7 +78,7 @@ pub mod blackhole {
 
 		pub fn purge(&self) {
 			match self.is_empty() {
-				Err(error) => Show::panic(&format!("Failed to READ blackhole directory (\"{:?}\") at {:?}", error, self.path)),
+				Err(error) => Show::panic(&format!("Failed to READ blackhole directory ({:?}) at {:?}", error, self.path)),
 				Ok(empty) => {
 					if empty {
 						println!("Blackhole directory empty.");
@@ -91,12 +91,12 @@ pub mod blackhole {
 			// So that the user can still pin the Blackhole to their Favourites, we move all the contents into a new $BLACKHOLE directory which is then moved to the trash instead.
 			#[cfg(target_os="macos")]
 			match self.move_n_purge() {
-				Err(error) => { Show::panic(&format!("Failed to PURGE blackhole directory (\"{:?}\") at {:?}", error, self.path)); return },
+				Err(error) => { Show::panic(&format!("Failed to PURGE blackhole directory ({:?}) at {:?}", error, self.path)); return },
 				Ok(_) => return
 			};
 
 			match trash::delete(&self.path) {
-				Err(error) => Show::panic(&format!("Failed to PURGE blackhole directory (\"{:?}\") at {:?}", error, self.path)),
+				Err(error) => Show::panic(&format!("Failed to PURGE blackhole directory ({:?}) at {:?}", error, self.path)),
 				Ok(_) => ()
 			}
 
@@ -108,7 +108,7 @@ pub mod blackhole {
 		pub fn send(&self, path_str: OsString) {
 			let path = Path::new(&path_str);
 			if !path.exists() || path.file_name().is_none() {
-				Show::panic(&format!("File does not exist! (\"{:?}\")", path));
+				Show::panic(&format!("File does not exist! ({:?})", path));
 				return;
 			}
 
@@ -136,7 +136,7 @@ pub mod blackhole {
 
 				i += 1;
 				if i >= u32::MAX {
-					Show::panic(&format!("File already exists: \"{:?}\"", blackhole_send_path));
+					Show::panic(&format!("File already exists: {:?}", blackhole_send_path));
 					return;
 				}
 
