@@ -1,6 +1,12 @@
 pub mod blackhole {
 	use crate::Show;
 
+	// For move_items override
+	#[cfg(all(target_os="windows", feature="gui"))] use crate::windows::Windows;
+
+	// For move_n_purge function
+	#[cfg(target_os="macos")] use crate::macos::MacOS;
+
 	use std::{ffi::OsString, fs, io};
 	use std::path::{Path, PathBuf};
 	use dirs;
@@ -12,8 +18,6 @@ pub mod blackhole {
 	static EMPTY_DIR_FILTER: [&str; 2] = [".DS_Store", "Icon\r"];
 	#[cfg(not(any(target_os="windows", target_os="macos")))]
 	static EMPTY_DIR_FILTER: [&str; 0] = [];
-
-	#[cfg(all(target_os="windows", feature="gui"))] use crate::windows::Windows;
 	
 	pub struct Blackhole {
 		pub path: PathBuf
@@ -52,62 +56,6 @@ pub mod blackhole {
 					return Ok(false);
 				}
 			}
-			Ok(true)
-		}
-
-		#[cfg(target_os="macos")]
-		fn move_n_purge(&self) -> Result<bool, io::Error> {
-			let mut temp_blackhole = self.path.to_owned();
-			temp_blackhole.push("$BLACKHOLE");
-
-			if temp_blackhole.is_file() {
-				match trash::delete(&temp_blackhole) {
-					Err(error) => Show::panic(&format!("Failed to delete $BLACKHOLE/$BLACKHOLE (please don't create a $BLACKHOLE file inside your blackhole? You are messing with space-time) (\"{:?}\") at {:?}", error, self.path)),
-					Ok(_) => ()
-				}
-			}
-
-			// If the temporary blackhole already exists, move it to the trash first
-			if temp_blackhole.is_dir() {
-				match trash::delete(&temp_blackhole) {
-					Err(error) => Show::panic(&format!("Failed to delete restored(?) $BLACKHOLE/$BLACKHOLE directory (\"{:?}\") at {:?}", error, self.path)),
-					Ok(_) => ()
-				}
-			}
-
-			match fs::create_dir(&temp_blackhole) {
-				Err(error) => Show::panic(&format!("Failed to create temporary $BLACKHOLE/$BLACKHOLE directory during purge (\"{:?}\") at {:?}", error, self.path)),
-				Ok(_) => ()
-			}
-
-			println!("Moving files...");
-
-			// Move the files into the temporary blackhole
-			let temp_blackhole_name: OsString = OsString::from("$BLACKHOLE");
-			for entry in self.path.read_dir()? {
-				let file_path = entry?.path();
-				match file_path.file_name() {
-					None => continue,
-					Some(file_name) => {
-						if file_path.is_dir() && file_name == temp_blackhole_name { continue; }
-						temp_blackhole.push(&file_name);
-						fs::rename(&file_path, &temp_blackhole).ok();
-						temp_blackhole.pop();
-					}
-				}
-			}
-
-			// Give it an icon
-			Blackhole::set_blackhole_icon(&temp_blackhole);
-			
-			// Finally, let's delete it
-			match trash::delete(&temp_blackhole) {
-				Err(error) => Show::panic(&format!("Failed to delete temporary $BLACKHOLE/$BLACKHOLE directory during purge (\"{:?}\") at {:?}", error, self.path)),
-				Ok(_) => ()
-			}
-
-			println!("Purged Blackhole directory!");
-
 			Ok(true)
 		}
 
