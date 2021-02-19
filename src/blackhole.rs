@@ -50,7 +50,7 @@ pub mod blackhole {
 			}
 		}
 
-		fn empty(&self) -> Result<bool, io::Error> {
+		fn is_empty(&self) -> Result<bool, io::Error> {
 			for entry in self.path.read_dir()? {
 				if !EMPTY_DIR_FILTER.contains(&entry?.file_name().to_str().unwrap_or_default()) {
 					return Ok(false);
@@ -60,7 +60,7 @@ pub mod blackhole {
 		}
 
 		pub fn purge(&self) {
-			match self.empty() {
+			match self.is_empty() {
 				Err(error) => Show::panic(&format!("Failed to READ blackhole directory (\"{:?}\") at {:?}", error, self.path)),
 				Ok(empty) => {
 					if empty {
