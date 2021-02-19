@@ -1,10 +1,18 @@
 use crate::Blackhole;
 use crate::Show;
 
-use std::{ffi::CString, fs, iter, os::windows::ffi::OsStrExt, os::windows::process::CommandExt, process::Command};
+use std::{ffi::{CString, OsString}, fs, iter, os::windows::ffi::OsStrExt, os::windows::process::CommandExt, path::Path, process::Command};
 use ini::{Ini, EscapePolicy};
 use winreg::{enums::*, RegKey};
-use winapi::{self, um::winbase::CREATE_NO_WINDOW};
+use winapi::{
+	self,
+	um::winbase::CREATE_NO_WINDOW,
+	shared::minwindef::UINT,
+	shared::windef::HWND,
+	shared::winerror::S_OK,
+	um::shellapi::{SHFileOperationW, FOF_ALLOWUNDO, FO_MOVE, SHFILEOPSTRUCTW},
+	um::winnt::PCZZWSTR,
+};
 
 // Bind SHChangeNotify
 extern "system" {
@@ -26,6 +34,7 @@ pub trait Windows {
 	fn set_blackhole_attributes(path: &std::path::PathBuf);
 	fn edit_context_menu_registry();
 	fn edit_startup_registry();
+	fn move_items(from: &Path, to: &Path) -> Result<(), String>;
 	fn chores(&self);
 }
 
@@ -213,6 +222,33 @@ impl Windows for Blackhole {
 				return;
 			}
 		};
+	}
+
+	fn move_items(from: &Path, to: &Path) -> Result<(), String> {
+		let mut from_null_terminated = OsString::from(from);
+		from_null_terminated.push("\0\0");
+		let from_utf16: Vec<u16> = from_null_terminated.encode_wide().chain(iter::once(0)).collect();
+
+		let mut to_null_terminated = OsString::from(to);
+		to_null_terminated.push("\0\0");
+		let to_utf16: Vec<u16> = to_null_terminated.encode_wide().chain(iter::once(0)).collect();
+
+		let mut fileop = SHFILEOPSTRUCTW {
+			hwnd: 0 as HWND,
+			wFunc: FO_MOVE as UINT,
+			pFrom: from_utf16.as_ptr() as PCZZWSTR,
+			pTo: to_utf16.as_ptr() as PCZZWSTR,
+			fFlags: FOF_ALLOWUNDO,
+			fAnyOperationsAborted: 0,
+			hNameMappings: std::ptr::null_mut(),
+			lpszProgressTitle: std::ptr::null()
+		};
+
+		let result = unsafe { SHFileOperationW(&mut fileop as *mut SHFILEOPSTRUCTW) };
+		match result {
+			S_OK => Ok(()),
+			_ => Err(result.to_string())
+		}
 	}
 
 	fn chores(&self) {
