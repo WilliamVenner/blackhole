@@ -1,18 +1,17 @@
 pub mod blackhole {
 	use crate::Show;
 
-	use std::{collections::HashSet, ffi::OsString, fs, io};
+	use std::{ffi::OsString, fs, io, path::Path};
 	use dirs;
 	use trash;
-	use lazy_static::lazy_static;
 
 	#[cfg(target_os="windows")]
-	lazy_static! { static ref EMPTY_DIR_FILTER: HashSet<&'static str> = HashSet::from(["desktop.ini"].iter().cloned().collect()); }
+	static EMPTY_DIR_FILTER: [&str; 1] = ["desktop.ini"];
 	#[cfg(target_os="macos")]
-	lazy_static! { static ref EMPTY_DIR_FILTER: HashSet<&'static str> = [".DS_Store", "Icon\r"].iter().cloned().collect(); }
+	static EMPTY_DIR_FILTER: [&str; 2] = [".DS_Store", "Icon\r"];
 	#[cfg(not(any(target_os="windows", target_os="macos")))]
-	lazy_static! { static ref EMPTY_DIR_FILTER: HashSet<&'static str> = return HashSet::new(); }
-	
+	static EMPTY_DIR_FILTER: [&str; 0] = [];
+
 	pub struct Blackhole {
 		pub path: std::path::PathBuf
 	}
@@ -52,22 +51,12 @@ pub mod blackhole {
 		}
 
 		fn empty(&self) -> Result<bool, io::Error> {
-			let found_file = self.path.read_dir()?.into_iter().filter(
-				|entry| !entry.is_err() &&
-				!EMPTY_DIR_FILTER.contains(
-					entry.as_ref().unwrap().file_name().to_str().unwrap_or_default()
-				)
-			).next();
-			
-			if found_file.is_none() {
-				Ok(true)
-			} else {
-				let found_file = found_file.unwrap();
-				if found_file.is_ok() {
-					println!("Found file: {}", found_file.unwrap().path().to_str().unwrap_or_default());
+			for entry in self.path.read_dir()? {
+				if !EMPTY_DIR_FILTER.contains(&entry?.file_name().to_str().unwrap_or_default()) {
+					return Ok(false);
 				}
-				Ok(false)
 			}
+			Ok(true)
 		}
 
 		#[cfg(target_os="macos")]
