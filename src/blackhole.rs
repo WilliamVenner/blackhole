@@ -47,6 +47,7 @@ pub mod blackhole {
 			match fs::create_dir(&self.path) {
 				Err(error) => Show::panic(&format!("Failed to CREATE blackhole directory (\"{:?}\") at {:?}", error, self.path)),
 				Ok(_) => return
+				Ok(_) => println!("Created At: {}", self.path.display())
 			}
 		}
 

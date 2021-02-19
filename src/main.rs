@@ -19,7 +19,6 @@ fn main() {
 	let should_purge: bool = env::args_os().any(|arg| arg == "--purge");
 	match Blackhole::new(should_purge) {
 		Ok(blackhole) => {
-			println!("Location: {}", blackhole.path.display());
 
 			if !should_purge {
 				#[cfg(feature="gui")]
