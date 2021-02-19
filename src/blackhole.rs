@@ -18,6 +18,7 @@ pub mod blackhole {
 
 	impl Blackhole {
 		pub fn new(should_purge: bool) -> Result<Blackhole, &'static str> {
+		pub fn new() -> Result<Blackhole, &'static str> {
 			let mut home_dir = match dirs::home_dir() {
 				Some(home_dir) => home_dir,
 				None => { return Err("Could not find a home directory!") },
@@ -30,13 +31,6 @@ pub mod blackhole {
 			// If the blackhole directory doesn't exist, create it
 			new.create();
 			println!("Blackhole initialized!");
-
-			// If it does exist & we've started up in purge mode, delete it
-			if should_purge { new.purge() }
-			
-			// Run any chores
-			#[cfg(any(target_os="windows", target_os="linux", target_os="macos"))]
-			new.chores();
 
 			Ok(new)
 		}
@@ -116,7 +110,7 @@ pub mod blackhole {
 			Ok(true)
 		}
 
-		fn purge(&self) {
+		pub fn purge(&self) {
 			match self.empty() {
 				Err(error) => Show::panic(&format!("Failed to READ blackhole directory (\"{:?}\") at {:?}", error, self.path)),
 				Ok(empty) => {
@@ -146,7 +140,4 @@ pub mod blackhole {
 		}
 	}
 
-	#[cfg(target_os="windows")] use crate::windows::Windows;
-	#[cfg(target_os="linux")]   use crate::linux::Linux;
-	#[cfg(target_os="macos")]   use crate::macos::MacOS;
 }
