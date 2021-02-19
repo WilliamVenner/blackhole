@@ -3,7 +3,7 @@ embed_plist::embed_launchd_plist!("../src/assets/launchd.plist");
 use cocoa::{self, appkit::NSImage, base::nil, foundation::NSString};
 use objc::{self, msg_send, sel, sel_impl, class, runtime::{YES, Object}};
 
-use std::{fs, path::PathBuf, str};
+use std::{fs, io, path::PathBuf, str, ffi::OsString};
 
 use crate::Blackhole;
 use crate::Show;
@@ -16,6 +16,7 @@ enum IconSetError {
 pub trait MacOS {
 	fn launchd();
 	fn set_blackhole_icon(path: &PathBuf);
+	fn move_n_purge(&self) -> Result<bool, io::Error>;
 	fn chores(&self);
 }
 
@@ -126,7 +127,7 @@ impl MacOS for Blackhole {
 		println!("Moving files...");
 
 		// Move the files into the temporary blackhole
-		let temp_blackhole_name: OsString = OsString::from("$BLACKHOLE");
+		let temp_blackhole_name = OsString::from("$BLACKHOLE");
 		for entry in self.path.read_dir()? {
 			let file_path = entry?.path();
 			match file_path.file_name() {
