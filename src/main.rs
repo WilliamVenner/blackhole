@@ -28,26 +28,37 @@ enum Operation {
 fn get_operation() -> Result<(Operation, Peekable<ArgsOs>), String> {
 	let mut args = env::args_os().peekable();
 
-	// Consume the first argument, which is always the program's location
-	args.nth(0);
+	match args.peek() {
+		Some(arg) => {
+			let exe_path = std::env::current_exe();
+	
+			// If the first argument is the current executable path, consume it
+			if exe_path.is_ok() && exe_path.unwrap().as_os_str() == arg {
+				args.nth(0);
+			}
 
-	match args.nth(0) {
-	    Some(command) => {
-			match command.to_str().unwrap_or_default() {
-				"--purge" => Ok((Operation::PURGE, args)),
+			match args.nth(0) {
+				Some(command) => {
+					match command.to_str().unwrap_or_default() {
+						"--purge" => return Ok((Operation::PURGE, args)),
+				
+						"--send" => {
+							match args.peek() {
+								Some(_) => return Ok((Operation::SEND, args)),
+								None => return Err(String::from("--send argument present, but no file path was provided!"))
+							}
+						},
 		
-				"--send" => {
-					match args.peek() {
-						Some(_) => Ok((Operation::SEND, args)),
-						None => Err(String::from("--send argument present, but no file path was provided!"))
+						_ => {}
 					}
 				},
-
-				_ => Ok((Operation::INITIALIZE, args))
+				None => {}
 			}
-		},
-	    None => Ok((Operation::INITIALIZE, args))
+		}
+		None => {}
 	}
+
+	Ok((Operation::INITIALIZE, args))
 }
 
 fn main() {

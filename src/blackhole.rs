@@ -10,7 +10,7 @@ pub mod blackhole {
 	use std::{ffi::OsString, fs, io};
 	use std::path::{Path, PathBuf};
 	use dirs;
-	use trash;
+    use trash;
 
 	#[cfg(target_os="windows")]
 	static EMPTY_DIR_FILTER: [&str; 1] = ["desktop.ini"];
@@ -18,6 +18,23 @@ pub mod blackhole {
 	static EMPTY_DIR_FILTER: [&str; 2] = [".DS_Store", "Icon\r"];
 	#[cfg(not(any(target_os="windows", target_os="macos")))]
 	static EMPTY_DIR_FILTER: [&str; 0] = [];
+
+	#[cfg(any(not(target_os="windows"), not(feature="gui")))]
+	static DIR_MOVE_OPTIONS: fs_extra::dir::CopyOptions = fs_extra::dir::CopyOptions {
+		overwrite: false,
+		skip_exist: true,
+		buffer_size: 64000,
+		copy_inside: true,
+		content_only: true,
+		depth: 0
+	};
+
+	#[cfg(any(not(target_os="windows"), not(feature="gui")))]
+	static FILE_MOVE_OPTIONS: fs_extra::file::CopyOptions = fs_extra::file::CopyOptions {
+		overwrite: false,
+		skip_exist: true,
+		buffer_size: 64000
+	};
 	
 	pub struct Blackhole {
 		pub path: PathBuf
@@ -123,10 +140,10 @@ pub mod blackhole {
 					return;
 				}
 
+				// If the file does exist, we need to pop it so we can push "$file_name ($i++)" into it in the next loop iteration
 				blackhole_send_path.pop();
 			}
 
-			match Blackhole::move_items(path, &blackhole_send_path) {
 			if !path.is_file() && !path.is_dir() {
 				Show::panic(&format!("Failed to move file/folder to Blackhole (\"Path provided was not a file or directory\")\n{:?} -> {:?}", path, &blackhole_send_path));
 				return;
@@ -138,9 +155,28 @@ pub mod blackhole {
 			}
 		}
 		
+		// If we're not using Windows (the Windows trait will override this to use Windows Explorer's move files command)
+		// or gui feature is not enabled, we'll use fs_extra::move_items to move the items. Not ideal as it doesn't show
+		// progress, but it's cross-platform.
+		// TODO: Native MacOS move_items function	
+		// FIXME: https://github.com/webdesus/fs_extra/issues/39	
 		#[cfg(any(not(target_os="windows"), not(feature="gui")))]
-		fn move_items(from: &Path, to: &Path) -> Result<(), String> {
-			match fs_extra::move_items(&vec![from], to, &fs_extra::dir::CopyOptions::new()) {
+		fn move_items(&self, from: &Path, to: &Path) -> Result<(), String> {
+			/*let mut renamed_from = from.to_owned();
+			if from.file_name().unwrap() != to.file_name().unwrap() {
+				// move_dir doesn't rename directories when moving, so we'll have to do it ourselves
+				renamed_from.pop();
+				renamed_from.push(&to.file_name().unwrap());
+				match fs::rename(from, &renamed_from) {
+					Err(error) => { return Err(String::from(format!("{:?}", &error))) },
+					Ok(_) => {}
+				}
+			}*/
+
+			match match from.is_dir() {
+				true => fs_extra::dir::move_dir(from, to, &DIR_MOVE_OPTIONS),
+				false => fs_extra::file::move_file(from, to, &FILE_MOVE_OPTIONS)
+			} {
 				Err(error) => Err(String::from(format!("{:?}", &error))),
 				Ok(_) => Ok(())
 			}

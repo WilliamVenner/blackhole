@@ -34,7 +34,7 @@ pub trait Windows {
 	fn set_blackhole_attributes(path: &std::path::PathBuf);
 	fn edit_context_menu_registry();
 	fn edit_startup_registry();
-	fn move_items(from: &Path, to: &Path) -> Result<(), String>;
+	fn move_items(&self, from: &Path, to: &Path) -> Result<(), String>;
 	fn chores(&self);
 }
 
@@ -224,7 +224,7 @@ impl Windows for Blackhole {
 		};
 	}
 
-	fn move_items(from: &Path, to: &Path) -> Result<(), String> {
+	fn move_items(&self, from: &Path, to: &Path) -> Result<(), String> {
 		let mut from_null_terminated = OsString::from(from);
 		from_null_terminated.push("\0\0");
 		let from_utf16: Vec<u16> = from_null_terminated.encode_wide().chain(iter::once(0)).collect();
