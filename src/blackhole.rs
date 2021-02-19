@@ -95,6 +95,11 @@ pub mod blackhole {
 				return;
 			}
 
+			if path.starts_with(&self.path) {
+				Show::panic(&String::from("This file or folder is already in your Blackhole."));
+				return;
+			}
+
 			let file_name = path.file_name().unwrap();
 
 			let mut blackhole_send_path = self.path.to_owned();
@@ -122,8 +127,14 @@ pub mod blackhole {
 			}
 
 			match Blackhole::move_items(path, &blackhole_send_path) {
+			if !path.is_file() && !path.is_dir() {
+				Show::panic(&format!("Failed to move file/folder to Blackhole (\"Path provided was not a file or directory\")\n{:?} -> {:?}", path, &blackhole_send_path));
+				return;
+			}
+
+			match self.move_items(path, &blackhole_send_path) {
 				Ok(_) => {},
-				Err(error) => Show::panic(&format!("Failed to move file/folder to Blackhole (\"{:?}\")\n{:?} -> {:?}", error, path, &blackhole_send_path)),
+				Err(error) => Show::panic(&format!("Failed to move file/folder to Blackhole ({:?})\n{:?} -> {:?}", error, path, &blackhole_send_path)),
 			}
 		}
 		
