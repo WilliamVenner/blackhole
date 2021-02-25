@@ -3,7 +3,6 @@ use crate::Show;
 
 use std::{ffi::{CString, OsString}, fs, iter, os::windows::ffi::OsStrExt, os::windows::process::CommandExt, path::Path, process::Command};
 use ini::{Ini, EscapePolicy};
-use winreg::{enums::*, RegKey};
 use winapi::{
 	self,
 	um::winbase::CREATE_NO_WINDOW,
@@ -32,8 +31,6 @@ pub trait Windows {
 	fn set_file_attributes(path: &std::path::PathBuf, attr: winapi::shared::minwindef::DWORD) -> *const u16;
 	fn quick_access(path: &std::path::PathBuf);
 	fn set_blackhole_attributes(path: &std::path::PathBuf);
-	fn edit_context_menu_registry();
-	fn edit_startup_registry();
 	fn move_items(&self, from: &Path, to: &Path) -> Result<(), String>;
 	fn chores(&self);
 }
@@ -139,91 +136,6 @@ impl Windows for Blackhole {
 		Blackhole::change_notify(path_utf16_ptr as *const _);
 	}
 
-	fn edit_context_menu_registry() {
-		// Add blackhole.exe --send to the File Explorer context menu
-
-		let exe_path = match std::env::current_exe() {
-			Ok(exe_path) => exe_path,
-			Err(error) => {
-				Show::error(&format!("Error getting executable path: {}", error));
-				return;
-			}
-		};
-
-		let hkcr = RegKey::predef(HKEY_CLASSES_ROOT);
-
-		for path in ["*\\shell\\Blackhole", "Folder\\shell\\blackhole"].iter() {
-			match hkcr.create_subkey_with_flags(*path, KEY_WRITE) {
-				Ok(blackhole_shell) => {
-					match blackhole_shell.0.set_value("", &"Blackhole") {
-						Ok(_) => (),
-						Err(error) => {
-							Show::error(&format!("Error setting registry key: {}", error));
-							return;
-						}
-					}
-			
-					match blackhole_shell.0.set_value("Icon", &format!("\"{}\"", exe_path.display())) {
-						Ok(_) => (),
-						Err(error) => {
-							Show::error(&format!("Error setting registry key: {}", error));
-							return;
-						}
-					}
-			
-					match blackhole_shell.0.create_subkey_with_flags("command", KEY_WRITE) {
-						Ok(command) => {
-							match command.0.set_value("", &format!("{} --send \"%1\"", exe_path.display())) {
-								Ok(_) => (),
-								Err(error) => {
-									Show::error(&format!("Error setting registry key: {}", error));
-									return;
-								}
-							}
-						},
-						Err(error) => {
-							Show::error(&format!("Error opening registry subkey: {}", error));
-							return;
-						}
-					};
-				},
-				Err(error) => {
-					Show::error(&format!("Error opening registry subkey: {}", error));
-					return;
-				}
-			};
-		}
-	}
-
-	fn edit_startup_registry() {
-		// Add blackhole.exe --purge to the startup registry
-
-		let exe_path = match std::env::current_exe() {
-			Ok(exe_path) => exe_path,
-			Err(error) => {
-				Show::error(&format!("Error getting executable path: {}", error));
-				return;
-			}
-		};
-
-		let hkcu = RegKey::predef(HKEY_CURRENT_USER);
-		let startup = match hkcu.open_subkey_with_flags("Software\\Microsoft\\Windows\\CurrentVersion\\Run", KEY_WRITE) {
-			Ok(startup) => startup,
-			Err(error) => {
-				Show::error(&format!("Error opening registry subkey: {}", error));
-				return;
-			}
-		};
-
-		match startup.set_value("Blackhole", &format!("{} --purge", exe_path.display())) {
-			Ok(_) => return,
-			Err(error) => {
-				Show::error(&format!("Error setting registry key: {}", error));
-				return;
-			}
-		};
-	}
-
 	fn move_items(&self, from: &Path, to: &Path) -> Result<(), String> {
 		let mut from_null_terminated = OsString::from(from);
 		from_null_terminated.push("\0\0");
@@ -251,13 +163,7 @@ impl Windows for Blackhole {
 		}
 	}
 
-	fn chores(&self) {
-		// If we're running Windows, add blackhole.exe --purge to the startup registry
-		Blackhole::edit_startup_registry();
-
-		// Add blackhole.exe --send to the context menu registry
-		Blackhole::edit_context_menu_registry();
-		
+	fn chores(&self) {		
 		// Set file/folder attributes
 		Blackhole::set_blackhole_attributes(&self.path);
 

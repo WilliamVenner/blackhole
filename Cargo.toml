@@ -9,6 +9,7 @@ keywords = ["blackhole", "black hole", "forget", "ramdisk", "organization", "org
 description = "Semi-temporary directory for not-so-organized organized people"
 
 [package.metadata.bundle]
+name = "Blackhole"
 identifier = "com.venner.blackhole"
 icon = ["src/assets/blackhole.ico"]
 
@@ -31,7 +32,6 @@ objc = { version = "0.2.7", features = ["exception"] }
 powershell_script = "0.1"
 winapi = { version = "0.3", features = ["winuser"] }
 rust-ini = "0.16"
-winreg = "0.8"
 
 [target.'cfg(target_os="windows")'.build-dependencies]
 winres = "0.1"
