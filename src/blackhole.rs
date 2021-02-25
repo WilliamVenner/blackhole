@@ -10,7 +10,7 @@ pub mod blackhole {
 	use std::{ffi::OsString, fs, io};
 	use std::path::{Path, PathBuf};
 	use dirs;
-    use trash;
+	use trash;
 
 	#[cfg(target_os="windows")]
 	static EMPTY_DIR_FILTER: [&str; 1] = ["desktop.ini"];

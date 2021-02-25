@@ -1,26 +1,5 @@
 <?xml version='1.0' encoding='windows-1252'?>
-<!--
-	Copyright (C) 2017 Christopher R. Field.
 
-	Licensed under the Apache License, Version 2.0 (the "License");
-	you may not use this file except in compliance with the License.
-	You may obtain a copy of the License at
-
-	http://www.apache.org/licenses/LICENSE-2.0
-
-	Unless required by applicable law or agreed to in writing, software
-	distributed under the License is distributed on an "AS IS" BASIS,
-	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	See the License for the specific language governing permissions and
-	limitations under the License.
--->
-
-<!--
-	Please do not remove these pre-processor If-Else blocks. These are used with
-	the `cargo wix` subcommand to automatically determine the installation
-	destination for 32-bit versus 64-bit installers. Removal of these lines will
-	cause installation errors.
--->
 <?if $(var.Platform) = x64 ?>
 <?define Win64 = "yes" ?>
 <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
@@ -43,13 +22,6 @@
 		<Directory Id='TARGETDIR' Name='SourceDir'>
 			<Directory Id='$(var.PlatformProgramFilesFolder)' Name='PFiles'>
 				<Directory Id='APPLICATIONFOLDER' Name='Blackhole'>
-					<!--
-											Disabling the license sidecar file in the installer is a two step process:
-
-											1. Comment out or remove the `Component` tag along with its contents.
-											2. Comment out or remove the `ComponentRef` tag with the "License" Id
-												 attribute value further down in this file.
-										-->
 					<Component Id='License' Guid='*' Win64='$(var.Win64)'>
 						<File Id='LicenseFile' Name='License.rtf' DiskId='1' Source='wix\License.rtf' KeyPath='yes'/>
 					</Component>
@@ -76,17 +48,9 @@
 		</Directory>
 
 		<Feature Id='Binaries' Title='Application' Description='Installs all binaries and the license.' Level='1' ConfigurableDirectory='APPLICATIONFOLDER' AllowAdvertise='no' Display='expand' Absent='disallow'>
-			<!--
-							Comment out or remove the following `ComponentRef` tag to remove
-							the license sidecar file from the installer.
-						-->
 			<ComponentRef Id='License'/>
 
 			<ComponentRef Id='binary0'/>
-
-			<!--<Feature Id='Environment' Title='PATH Environment Variable' Description='Add the install location of the [ProductName] executable to the PATH system environment variable. This allows the [ProductName] executable to be called from any location.' Level='1' Absent='allow'>
-								<ComponentRef Id='Path'/>
-						</Feature>-->
 		</Feature>
 
 		<Feature Id='StartupReg' Title='Purge on Startup' Description='Purges the $BLACKHOLE directory when the computer starts up.' Level='1' AllowAdvertise='no' Display='expand' Absent='disallow'>
@@ -99,13 +63,6 @@
 
 		<SetProperty Id='ARPINSTALLLOCATION' Value='[APPLICATIONFOLDER]' After='CostFinalize'/>
 
-
-		<!--
-					Uncomment the following `Icon` and `Property` tags to change the product icon.
-
-					The product icon is the graphic that appears in the Add/Remove
-					Programs control panel for the application.
-				-->
 		<Icon Id='ProductICO' SourceFile='src\assets\blackhole.ico'/>
 		<Property Id='ARPPRODUCTICON' Value='ProductICO' />
 
@@ -113,43 +70,12 @@
 
 		<UI>
 			<UIRef Id='WixUI_FeatureTree'/>
-			<!--
-							Disabling the EULA dialog in the installer is a two step process:
-
-								 1. Uncomment the following two `Publish` tags
-								 2. Comment out or remove the `<WiXVariable Id='WixUILicenseRtf'...` tag further down
-
-						-->
-			<!--<Publish Dialog='WelcomeDlg' Control='Next' Event='NewDialog' Value='CustomizeDlg' Order='99'>1</Publish>-->
-			<!--<Publish Dialog='CustomizeDlg' Control='Back' Event='NewDialog' Value='WelcomeDlg' Order='99'>1</Publish>-->
 		</UI>
 
-		<!--
-					Disabling the EULA dialog in the installer requires commenting out
-					or removing the following `WixVariable` tag
-				-->
 		<WixVariable Id='WixUILicenseRtf' Value='wix\License.rtf'/>
 
-
-		<!--
-					Uncomment the next `WixVaraible` tag to customize the installer's
-					Graphical User Interface (GUI) and add a custom banner image across
-					the top of each screen. See the WiX Toolset documentation for details
-					about customization.
-
-					The banner BMP dimensions are 493 x 58 pixels.
-				-->
 		<WixVariable Id='WixUIBannerBmp' Value='src\assets\msi-banner.bmp'/>
 
-
-		<!--
-					Uncomment the next `WixVariable` tag to customize the installer's
-					Graphical User Interface (GUI) and add a custom image to the first
-					dialog, or screen. See the WiX Toolset documentation for details about
-					customization.
-
-					The dialog BMP dimensions are 493 x 312 pixels.
-				-->
 		<WixVariable Id='WixUIDialogBmp' Value='src\assets\msi.bmp'/>
 
 		<CustomAction Id="EXECUTE_AFTER_FINALIZE" Execute="immediate" Impersonate="yes" Return="asyncNoWait" FileKey="exe0" ExeCommand="" />
