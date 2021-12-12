@@ -12,7 +12,7 @@
 
 	<Product Id='*' Name='Blackhole' UpgradeCode='E04A54F8-7D00-44C8-973A-8258F273A41E' Manufacturer='William Venner' Language='1033' Codepage='1252' Version='$(var.Version)'>
 
-		<Package Id='*' Keywords='Installer' Description='Semi-temporary directory for not-so-organized organized people' Manufacturer='William Venner' InstallerVersion='450' Languages='1033' Compressed='yes' InstallScope='perMachine' SummaryCodepage='1252' Platform='$(var.Platform)'/>
+		<Package Id='*' Keywords='Installer' Description='Blackhole' Manufacturer='William Venner' InstallerVersion='450' Languages='1033' Compressed='yes' InstallScope='perMachine' SummaryCodepage='1252' Platform='$(var.Platform)'/>
 
 		<MajorUpgrade Schedule='afterInstallInitialize' DowngradeErrorMessage='A newer version of [ProductName] is already installed. Setup will now exit.'/>
 
