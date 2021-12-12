@@ -1,0 +1,81 @@
+name: build
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build_linux_cli:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Build
+      run: cargo build --verbose --release
+    
+    - name: Strip
+      run: strip target/release/blackhole
+    
+    - name: Rename
+      run: mv target/release/blackhole target/release/blackhole_linux64
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: target/release/blackhole_linux64
+        fail_on_unmatched_files: true
+  
+  build_windows_gui:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Download WiX Toolset
+      run: curl -L -o "wix311.zip" https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip
+
+    - name: Extract WiX Toolset
+      run: mkdir wix311 && cd wix311 && tar -xf ..\wix311.zip && cd ..\
+
+    - name: Install cargo wix
+      run: cargo install cargo-wix
+
+    - name: Build
+      env:
+        RUSTFLAGS: -Ctarget-feature=+crt-static
+      run: cargo build --verbose --release --features gui
+
+    - name: Create installer
+      run: cargo wix -v -b "wix311" --no-build --nocapture
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: target/wix/blackhole-*.*.*-x86_64.msi
+        fail_on_unmatched_files: true
+  
+  build_macos_gui:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install cargo bundle
+      run: cargo install cargo-bundle
+
+    - name: Build
+      run: cargo bundle --features gui --release
+
+    - name: Rename
+      run: mv target/release/bundle/osx/Blackhole.app target/release/bundle/osx/blackhole_macos64.app
+
+    - name: ZIP
+      run: zip -r target/release/bundle/osx/blackhole_macos64.app.zip target/release/bundle/osx/blackhole_macos64.app
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: target/release/bundle/osx/blackhole_macos64.app.zip
+        fail_on_unmatched_files: true
