@@ -37,11 +37,11 @@
 					<Component Id='contextmenu' Guid='*' Win64='$(var.Win64)'>
 						<RegistryValue Root="HKCR" Key="*\shell\Blackhole" Value='Blackhole' Type="string" KeyPath="yes" Action="write"/>
 						<RegistryValue Root="HKCR" Key="*\shell\Blackhole" Name="Icon" Value='"[APPLICATIONFOLDER]blackhole.exe"' Type="string" KeyPath="no" Action="write"/>
-						<RegistryValue Root="HKCR" Key="*\shell\Blackhole" Name="command" Value='"[APPLICATIONFOLDER]blackhole.exe" --send "%1"' Type="string" KeyPath="no" Action="write"/>
+						<RegistryValue Root="HKCR" Key="*\shell\Blackhole\command" Value='"[APPLICATIONFOLDER]blackhole.exe" --send "%1"' Type="string" KeyPath="no" Action="write"/>
 
 						<RegistryValue Root="HKCR" Key="Folder\shell\Blackhole" Value='Blackhole' Type="string" KeyPath="no" Action="write"/>
 						<RegistryValue Root="HKCR" Key="Folder\shell\Blackhole" Name="Icon" Value='"[APPLICATIONFOLDER]blackhole.exe"' Type="string" KeyPath="no" Action="write"/>
-						<RegistryValue Root="HKCR" Key="Folder\shell\Blackhole" Name="command" Value='"[APPLICATIONFOLDER]blackhole.exe" --send "%1"' Type="string" KeyPath="no" Action="write"/>
+						<RegistryValue Root="HKCR" Key="Folder\shell\Blackhole\command" Value='"[APPLICATIONFOLDER]blackhole.exe" --send "%1"' Type="string" KeyPath="no" Action="write"/>
 					</Component>
 				</Directory>
 			</Directory>
