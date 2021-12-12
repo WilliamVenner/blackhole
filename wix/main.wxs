@@ -53,11 +53,11 @@
 			<ComponentRef Id='binary0'/>
 		</Feature>
 
-		<Feature Id='StartupReg' Title='Purge on Startup' Description='Purges the $BLACKHOLE directory when the computer starts up.' Level='1' AllowAdvertise='no' Display='expand' Absent='disallow'>
+		<Feature Id='StartupReg' Title='Purge on Startup' Description='Purges the BLACKHOLE directory when the computer starts up.' Level='1' AllowAdvertise='no' Display='expand' Absent='disallow'>
 			<ComponentRef Id='startup'/>
 		</Feature>
 
-		<Feature Id='ContextMenuReg' Title='Add Blackhole to context menu' Description='Adds "Blackhole" option to the right click menu on files and folders, which moves them to the $BLACKHOLE.' Level='1' AllowAdvertise='no' Display='expand' Absent='allow'>
+		<Feature Id='ContextMenuReg' Title='Add Blackhole to context menu' Description='Adds "Blackhole" option to the right click menu on files and folders, which moves them to the BLACKHOLE.' Level='1' AllowAdvertise='no' Display='expand' Absent='allow'>
 			<ComponentRef Id='contextmenu'/>
 		</Feature>
 

@@ -102,11 +102,11 @@ impl MacOS for Blackhole {
 
 	fn move_n_purge(&self) -> Result<bool, io::Error> {
 		let mut temp_blackhole = self.path.to_owned();
-		temp_blackhole.push("$BLACKHOLE");
+		temp_blackhole.push("BLACKHOLE");
 
 		if temp_blackhole.is_file() {
 			match trash::delete(&temp_blackhole) {
-				Err(error) => Show::panic(&format!("Failed to delete $BLACKHOLE/$BLACKHOLE (please don't create a $BLACKHOLE file inside your blackhole? You are messing with space-time) ({:?}) at {:?}", error, self.path)),
+				Err(error) => Show::panic(&format!("Failed to delete BLACKHOLE/BLACKHOLE (please don't create a BLACKHOLE file inside your blackhole? You are messing with space-time) ({:?}) at {:?}", error, self.path)),
 				Ok(_) => ()
 			}
 		}
@@ -114,20 +114,20 @@ impl MacOS for Blackhole {
 		// If the temporary blackhole already exists, move it to the trash first
 		if temp_blackhole.is_dir() {
 			match trash::delete(&temp_blackhole) {
-				Err(error) => Show::panic(&format!("Failed to delete restored(?) $BLACKHOLE/$BLACKHOLE directory ({:?}) at {:?}", error, self.path)),
+				Err(error) => Show::panic(&format!("Failed to delete restored(?) BLACKHOLE/BLACKHOLE directory ({:?}) at {:?}", error, self.path)),
 				Ok(_) => ()
 			}
 		}
 
 		match fs::create_dir(&temp_blackhole) {
-			Err(error) => Show::panic(&format!("Failed to create temporary $BLACKHOLE/$BLACKHOLE directory during purge ({:?}) at {:?}", error, self.path)),
+			Err(error) => Show::panic(&format!("Failed to create temporary BLACKHOLE/BLACKHOLE directory during purge ({:?}) at {:?}", error, self.path)),
 			Ok(_) => ()
 		}
 
 		println!("Moving files...");
 
 		// Move the files into the temporary blackhole
-		let temp_blackhole_name = OsString::from("$BLACKHOLE");
+		let temp_blackhole_name = OsString::from("BLACKHOLE");
 		for entry in self.path.read_dir()? {
 			let file_path = entry?.path();
 			match file_path.file_name() {
@@ -146,7 +146,7 @@ impl MacOS for Blackhole {
 		
 		// Finally, let's delete it
 		match trash::delete(&temp_blackhole) {
-			Err(error) => Show::panic(&format!("Failed to delete temporary $BLACKHOLE/$BLACKHOLE directory during purge ({:?}) at {:?}", error, self.path)),
+			Err(error) => Show::panic(&format!("Failed to delete temporary BLACKHOLE/BLACKHOLE directory during purge ({:?}) at {:?}", error, self.path)),
 			Ok(_) => ()
 		}
 
@@ -156,7 +156,7 @@ impl MacOS for Blackhole {
 	}
 
 	fn chores(&self) {
-		// Set $BLACKHOLE folder icon
+		// Set BLACKHOLE folder icon
 		Blackhole::set_blackhole_icon(&self.path);
 
 		// Add --purge to launchd jobs

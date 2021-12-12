@@ -41,13 +41,40 @@ pub mod blackhole {
 	}
 
 	impl Blackhole {
+		fn handle_v3_rename(new: &Path) -> Result<(), Box<dyn std::error::Error>> {
+			let old = new.with_file_name("$BLACKHOLE");
+
+			if old.is_dir() {
+				if new.is_dir() {
+					// Move the files
+					for entry in old.read_dir()? {
+						let entry = entry?;
+						let path = entry.path();
+						let relative_path = new.join(path.strip_prefix(&old)?);
+						std::fs::rename(path, relative_path)?;
+					}
+
+					std::fs::remove_dir(old)?;
+				} else {
+					// Rename the directory
+					std::fs::rename(old, &new)?;
+				}
+			}
+
+			Ok(())
+		}
+
 		pub fn new() -> Result<Blackhole, &'static str> {
 			let mut home_dir = match dirs::home_dir() {
 				Some(home_dir) => home_dir,
 				None => { return Err("Could not find a home directory!") },
 			};
 
-			home_dir.push("$BLACKHOLE");
+			home_dir.push("BLACKHOLE");
+			
+			if let Err(err) = Blackhole::handle_v3_rename(&home_dir) {
+				eprintln!("Failed to rename v3 $BLACKHOLE: {}", err);
+			}
 			
 			let new = Blackhole { path: home_dir };
 
@@ -88,7 +115,7 @@ pub mod blackhole {
 			}
 
 			// On MacOS, it is not possible to add folders to the "Favourites" sidebar in Finder because Apple deprecated the API and provided no alternative.
-			// So that the user can still pin the Blackhole to their Favourites, we move all the contents into a new $BLACKHOLE directory which is then moved to the trash instead.
+			// So that the user can still pin the Blackhole to their Favourites, we move all the contents into a new BLACKHOLE directory which is then moved to the trash instead.
 			#[cfg(target_os="macos")]
 			match self.move_n_purge() {
 				Err(error) => { Show::panic(&format!("Failed to PURGE blackhole directory ({:?}) at {:?}", error, self.path)); return },

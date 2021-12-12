@@ -36,13 +36,13 @@ _And much more..._
 
 Blackhole will automatically add itself to your startup programs via the registry.
 
-If contents are present, the `$BLACKHOLE` directory will be moved to the Recycle Bin every time you start up your computer.
+If contents are present, the `BLACKHOLE` directory will be moved to the Recycle Bin every time you start up your computer.
 
-The `$BLACKHOLE` directory will automatically be added to the Quick Access locations.
+The `BLACKHOLE` directory will automatically be added to the Quick Access locations.
 
 #### File Location
 
-`%USERPROFILE%/$BLACKHOLE`
+`%USERPROFILE%/BLACKHOLE`
 
 ## Linux & MacOS
 
@@ -54,7 +54,7 @@ If you simply want to do it yourself, just run the program with the `--purge` fl
 
 #### File Location
 
-`$HOME/$BLACKHOLE`
+`$HOME/BLACKHOLE`
 
 ## Screenshots
 

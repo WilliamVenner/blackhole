@@ -67,7 +67,7 @@ impl Windows for Blackhole {
 		return path_utf16_ptr;
 	}
 
-	// Add $BLACKHOLE to the Quick Access tab
+	// Add BLACKHOLE to the Quick Access tab
 	fn quick_access(path: &std::path::PathBuf) {
 		Blackhole::powershell(format!("$o = new-object -com shell.application\n$o.Namespace('{}').Self.InvokeVerb('pintohome')", path.display()));
 
@@ -78,7 +78,7 @@ impl Windows for Blackhole {
 		Blackhole::change_notify(quick_access_folder_path.as_ptr() as *const _);
 	}
 	
-	// Configures the $BLACKHOLE folder
+	// Configures the BLACKHOLE folder
 	fn set_blackhole_attributes(path: &std::path::PathBuf) {
 		// Set the file attributes of the blackhole directory itself
 		let path_utf16_ptr = Blackhole::set_file_attributes(path, winapi::um::winnt::FILE_ATTRIBUTE_SYSTEM | winapi::um::winnt::FILE_ATTRIBUTE_READONLY);
@@ -167,7 +167,7 @@ impl Windows for Blackhole {
 		// Set file/folder attributes
 		Blackhole::set_blackhole_attributes(&self.path);
 
-		// Add $BLACKHOLE to Quick Access links
+		// Add BLACKHOLE to Quick Access links
 		Blackhole::quick_access(&self.path);
 	}
 }
