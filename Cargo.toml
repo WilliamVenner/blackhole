@@ -16,9 +16,6 @@ icon = ["src/assets/blackhole.ico"]
 [features]
 gui = ["msgbox", "opener"]
 
-[profile.release]
-debug = true
-
 [dependencies]
 dirs = "3.0"
 trash = "1.2"
