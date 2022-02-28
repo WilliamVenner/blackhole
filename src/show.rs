@@ -21,14 +21,16 @@ pub mod show {
 	#[cfg(feature="gui")]
 	impl Show {
 		pub fn panic(err: &String) {
-			if msgbox::create("Blackhole PANIC", err, IconType::Error).is_err() {
+			let err = format!("{}\n\n{:#?}", err, backtrace::Backtrace::new());
+			if msgbox::create("Blackhole PANIC", &err, IconType::Error).is_err() {
 				panic!("Blackhole PANIC: {}", err);
 			}
 		}
 	
 		pub fn error(err: &String) {
-			if msgbox::create("Blackhole ERROR", err, IconType::Error).is_err() {
-				println!("Blackhole ERROR: {}", err);
+			let err = format!("{}\n\n{:#?}", err, backtrace::Backtrace::new());
+			if msgbox::create("Blackhole ERROR", &err, IconType::Error).is_err() {
+				eprintln!("Blackhole ERROR: {}", err);
 			}
 		}
 	

@@ -47,6 +47,11 @@ impl Windows for Blackhole {
 		.output() {
 			Err(err) => { Show::error(&format!("Error executing PowerShell script: {}", err)) },
 			Ok(output) => {
+				if std::str::from_utf8(&output.stderr).map(|str| str.contains("called on MessageLoop that's already been Quit!")).unwrap_or(false) {
+					// A silly fix for a silly error (the script still worked)
+					return;
+				}
+
 				if output.stderr.len() > 0 {
 					Show::error(&format!("PowerShell error:\n{}", String::from_utf8(output.stderr).unwrap_or_else(|_| String::from("String conversion error"))));
 				}
