@@ -47,9 +47,11 @@ impl Windows for Blackhole {
 		.output() {
 			Err(err) => { Show::error(&format!("Error executing PowerShell script: {}", err)) },
 			Ok(output) => {
-				if std::str::from_utf8(&output.stderr).map(|str| str.contains("called on MessageLoop that's already been Quit!")).unwrap_or(false) {
-					// A silly fix for a silly error (the script still worked)
-					return;
+				if let Ok(stderr) = std::str::from_utf8(&output.stderr) {
+					if stderr.contains("called on MessageLoop that's already been Quit!") || stderr.contains("LoadBitmapFromPngResource") {
+						// A silly fix for a silly error (the script still worked)
+						return;
+					}
 				}
 
 				if output.stderr.len() > 0 {
