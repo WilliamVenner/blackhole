@@ -140,7 +140,7 @@ pub mod blackhole {
 			}
 
 			if path.starts_with(&self.path) {
-				Show::panic(&String::from("This file or folder is already in your Blackhole."));
+				Show::msg(&String::from("This file or folder is already in your Blackhole."));
 				return;
 			}
 
