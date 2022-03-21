@@ -33,19 +33,25 @@
 					<Component Id='startup' Guid='*' Win64='$(var.Win64)'>
 						<RegistryValue Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Run" Name="Blackhole" Value='"[APPLICATIONFOLDER]blackhole.exe" --purge' Type="string" KeyPath="yes" Action="write"/>
 					</Component>
-
-					<Component Id='contextmenu' Guid='*' Win64='$(var.Win64)'>
-						<RegistryValue Root="HKCR" Key="*\shell\Blackhole" Value='Blackhole' Type="string" KeyPath="yes" Action="write"/>
-						<RegistryValue Root="HKCR" Key="*\shell\Blackhole" Name="Icon" Value='"[APPLICATIONFOLDER]blackhole.exe"' Type="string" KeyPath="no" Action="write"/>
-						<RegistryValue Root="HKCR" Key="*\shell\Blackhole\command" Value='"[APPLICATIONFOLDER]blackhole.exe" --send "%1"' Type="string" KeyPath="no" Action="write"/>
-
-						<RegistryValue Root="HKCR" Key="Folder\shell\Blackhole" Value='Blackhole' Type="string" KeyPath="no" Action="write"/>
-						<RegistryValue Root="HKCR" Key="Folder\shell\Blackhole" Name="Icon" Value='"[APPLICATIONFOLDER]blackhole.exe"' Type="string" KeyPath="no" Action="write"/>
-						<RegistryValue Root="HKCR" Key="Folder\shell\Blackhole\command" Value='"[APPLICATIONFOLDER]blackhole.exe" --send "%1"' Type="string" KeyPath="no" Action="write"/>
-					</Component>
 				</Directory>
 			</Directory>
+     		<Directory Id="SendToFolder" />
 		</Directory>
+
+		<DirectoryRef Id="SendToFolder">
+			<Component Id="ApplicationSendToShortcut" Guid="13FF38CE-787D-46A6-A2D3-06C7B5663A88">
+				<Shortcut Id="ApplicationSendToShortcut"
+					Name="Blackhole"
+					Description="Sends the file or folder to your Blackhole"
+					Target="[APPLICATIONFOLDER]blackhole.exe"
+					Arguments="--send"
+					WorkingDirectory="APPLICATIONFOLDER"
+					Show="minimized"
+				/>
+				<RegistryValue Root="HKCU" Key="Software\Blackhole" Name="SendToInstalled" Type="integer" Value="1" KeyPath="yes"/>
+				<RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+			</Component>
+		</DirectoryRef>
 
 		<Feature Id='Binaries' Title='Application' Description='Installs all binaries and the license.' Level='1' ConfigurableDirectory='APPLICATIONFOLDER' AllowAdvertise='no' Display='expand' Absent='disallow'>
 			<ComponentRef Id='License'/>
@@ -57,8 +63,8 @@
 			<ComponentRef Id='startup'/>
 		</Feature>
 
-		<Feature Id='ContextMenuReg' Title='Add Blackhole to context menu' Description='Adds "Blackhole" option to the right click menu on files and folders, which moves them to the BLACKHOLE.' Level='1' AllowAdvertise='no' Display='expand' Absent='allow'>
-			<ComponentRef Id='contextmenu'/>
+		<Feature Id='ApplicationSendToShortcut' Title='Add Blackhole to "Send To"' Description='Adds "Blackhole" option to the "Send To" menu, which moves them to the BLACKHOLE.' Level='1' AllowAdvertise='no' Display='expand' Absent='allow'>
+			<ComponentRef Id='ApplicationSendToShortcut'/>
 		</Feature>
 
 		<SetProperty Id='ARPINSTALLLOCATION' Value='[APPLICATIONFOLDER]' After='CostFinalize'/>
