@@ -24,6 +24,7 @@ extern "system" {
 }
 const SHCNE_UPDATEDIR: winapi::um::winnt::LONG = 0x00001000;
 const SHCNF_PATHW: winapi::shared::minwindef::UINT = 0x0005;
+const SHCNF_FLUSH: winapi::shared::minwindef::UINT = 4096u32;
 
 pub trait Windows {
 	fn powershell(script: String);
@@ -63,7 +64,7 @@ impl Windows for Blackhole {
 
 	// SHChangeNotify(SHCNE_UPDATEDIR, ...) tell a file or directory to update its icon
 	fn change_notify(ptr: *const winapi::ctypes::c_void) {
-		unsafe { SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATHW, ptr, std::ptr::null_mut()); }
+		unsafe { SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATHW | SHCNF_FLUSH, ptr, std::ptr::null_mut()); }
 	}
 
 	// Sets Windows file attributes
