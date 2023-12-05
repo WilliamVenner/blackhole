@@ -162,7 +162,7 @@ pub mod blackhole {
 				}
 
 				i += 1;
-				if i >= u32::MAX {
+				if i == u32::MAX {
 					Show::panic(&format!("File already exists: {:?}", blackhole_send_path));
 					return;
 				}
