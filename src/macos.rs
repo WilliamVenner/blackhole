@@ -37,7 +37,14 @@ impl MacOS for Blackhole {
 			Err(error) => { Show::error(&format!("Error getting executable path: {}", error)); return; }
 		};
 		
-		plist_path.push("Library/LaunchAgents/com.venner.blackhole.plist");
+		plist_path.push("Library/LaunchAgents");
+
+		match fs::create_dir_all(&plist_path) {
+			Ok(_) => { println!("Created LaunchAgents directory successfully"); }
+			Err(error) => { Show::error(&format!("Error creating LaunchAgents directory: {}", error)); return; }
+		};
+
+		plist_path.push("com.venner.blackhole.plist");
 		
 		let embedded_plist_bytes = embed_plist::get_launchd_plist();
 		let embedded_plist = match str::from_utf8(embedded_plist_bytes) {
