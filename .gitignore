@@ -1,2 +1,5 @@
 /target
 !.vscode/settings.json
+.DS_Store
+wix311/
+wix311.zip
