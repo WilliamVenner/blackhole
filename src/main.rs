@@ -29,6 +29,7 @@ mod os {
 		/// Should this file be skipped when purging the Blackhole folder?
 		fn should_skip_purge_file(path: &Path) -> bool;
 
+		#[cfg(windows)]
 		/// Sends a file or directory to the Blackhole folder.
 		fn send(&self, path: &Path) -> Result<(), std::io::Error>;
 	}
@@ -38,6 +39,8 @@ mod os {
 enum Operation {
 	Initialize,
 	Purge,
+
+	#[cfg(windows)]
 	SendTo,
 }
 
@@ -59,7 +62,7 @@ impl Blackhole {
 		})
 	}
 
-	pub fn init_and_open(&mut self) -> Result<(), std::io::Error> {
+	pub fn init(&mut self) -> Result<(), std::io::Error> {
 		match std::fs::create_dir(&self.path) {
 			Ok(_) => {}
 			Err(err) if err.kind() == std::io::ErrorKind::AlreadyExists => {}
@@ -70,6 +73,10 @@ impl Blackhole {
 
 		Self::chart_blackhole_folder(&self.path);
 
+		Ok(())
+	}
+
+	pub fn open(&mut self) -> Result<(), std::io::Error> {
 		opener::open(&self.path).map_err(|err| match err {
 			opener::OpenError::Io(err) => err,
 			err => std::io::Error::new(std::io::ErrorKind::Other, err),
@@ -158,10 +165,18 @@ fn run() -> Result<i32, std::io::Error> {
 
 		(arg, 1) if arg == Some(OsStr::new("--purge")) => Operation::Purge,
 
+		#[cfg(windows)]
 		(arg, 2) if arg == Some(OsStr::new("--send")) => Operation::SendTo,
 
+		#[cfg(windows)]
 		_ => {
 			eprintln!("Usage: blackhole [--purge | --send path]");
+			return Ok(1);
+		}
+
+		#[cfg(not(windows))]
+		_ => {
+			eprintln!("Usage: blackhole [--purge]");
 			return Ok(1);
 		}
 	};
@@ -174,7 +189,8 @@ fn run() -> Result<i32, std::io::Error> {
 	match operation {
 		Operation::Initialize => {
 			log::info!("Opening Blackhole");
-			blackhole.init_and_open()?;
+			blackhole.init()?;
+			blackhole.open()?;
 		}
 
 		Operation::Purge => {
@@ -182,11 +198,13 @@ fn run() -> Result<i32, std::io::Error> {
 			blackhole.purge()?;
 		}
 
+		#[cfg(windows)]
 		Operation::SendTo => {
 			let path = PathBuf::from(args.next().unwrap());
 
 			log::info!("Sending {} to the Blackhole", path.display());
 
+			blackhole.init()?;
 			blackhole.send(&path)?;
 		}
 	}
