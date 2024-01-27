@@ -10,6 +10,7 @@ impl Logger {
 			match File::create(std::env::temp_dir().join(match op {
 				Operation::Initialize => "BLACKHOLE.log",
 				Operation::Purge => "BLACKHOLE_PURGE.log",
+
 				#[cfg(windows)]
 				Operation::SendTo => "BLACKHOLE_SENDTO.log",
 			})) {
@@ -48,7 +49,7 @@ impl Log for Logger {
 	}
 }
 
-pub fn init(op: Operation) {
+pub(super) fn init(op: Operation) {
 	log::set_boxed_logger(Box::new(Logger::new(op))).ok();
 	log::set_max_level(log::LevelFilter::Info);
 }
