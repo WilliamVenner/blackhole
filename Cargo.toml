@@ -18,6 +18,11 @@ keywords = [
 ]
 description = "Semi-temporary directory for not-so-organized organized people"
 
+[profile.release]
+codegen-units = 1
+lto = "thin"
+opt-level = "z"
+
 [package.metadata.bundle]
 name = "Blackhole"
 identifier = "com.venner.blackhole"

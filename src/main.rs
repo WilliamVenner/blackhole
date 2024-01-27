@@ -1,3 +1,5 @@
+#![windows_subsystem = "windows"]
+
 use os::OsBlackhole;
 use std::{ffi::OsStr, path::PathBuf};
 use uuid::Uuid;

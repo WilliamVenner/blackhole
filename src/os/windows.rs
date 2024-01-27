@@ -2,7 +2,7 @@ use super::OsBlackhole;
 use crate::Blackhole;
 use ini::{EscapePolicy, Ini};
 use std::{
-	ffi::CString,
+	ffi::{CString, OsStr},
 	os::{raw::c_void, windows::process::CommandExt},
 	path::Path,
 	process::Command,
