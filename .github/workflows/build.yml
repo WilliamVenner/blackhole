@@ -49,13 +49,13 @@ jobs:
         run: cargo bundle --release
 
       - name: Rename
-        run: mv target/release/bundle/osx/Blackhole.app target/release/bundle/osx/blackhole_macos64.app
+        run: mv target/release/bundle/osx/Blackhole.app Blackhole.app
 
       - name: ZIP
-        run: zip -r target/release/bundle/osx/blackhole_macos64.app.zip target/release/bundle/osx/blackhole_macos64.app
+        run: zip -r Blackhole.app.zip Blackhole.app
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: target/release/bundle/osx/blackhole_macos64.app.zip
+          files: Blackhole.app.zip
           fail_on_unmatched_files: true

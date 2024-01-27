@@ -1,5 +1,7 @@
 /target
 !.vscode/settings.json
 .DS_Store
-wix311/
-wix311.zip
+/wix311/
+/wix311.zip
+/Blackhole.app
+/Blackhole.app.zip
