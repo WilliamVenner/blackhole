@@ -3,12 +3,17 @@ use std::{ffi::OsStr, path::PathBuf};
 use uuid::Uuid;
 
 mod os {
-	#[cfg(windows)]
-	pub mod windows;
 	use std::path::Path;
 
 	#[cfg(windows)]
+	pub mod windows;
+	#[cfg(windows)]
 	pub use windows::*;
+
+	#[cfg(target_os = "macos")]
+	pub mod macos;
+	#[cfg(target_os = "macos")]
+	pub use macos::*;
 
 	pub trait OsBlackhole {
 		/// Decorate the Blackhole folder: give it an icon, and set any special attributes.
@@ -16,6 +21,9 @@ mod os {
 
 		/// "Chart" the Blackhole folder: add it to "easy access" locations.
 		fn chart_blackhole_folder(path: &Path);
+
+		/// Should this file be skipped when purging the Blackhole folder?
+		fn should_skip_purge_file(path: &Path) -> bool;
 	}
 }
 
@@ -78,7 +86,7 @@ impl Blackhole {
 			let entry = entry?;
 			let path = entry.path();
 
-			if path == purge_dir || path.file_name() == Some(OsStr::new("desktop.ini")) {
+			if path == purge_dir || Self::should_skip_purge_file(&path) {
 				continue;
 			}
 

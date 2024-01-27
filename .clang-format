@@ -1,0 +1,5 @@
+BasedOnStyle: WebKit
+IndentWidth: 4
+ColumnLimit: 150
+BraceWrapping:
+	AfterObjCDeclaration: true

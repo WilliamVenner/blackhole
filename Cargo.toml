@@ -1,7 +1,27 @@
 [package]
 name = "blackhole"
-version = "2.0.0"
+version = "5.0.0"
+authors = ["William Venner <william@venner.io>"]
 edition = "2021"
+repository = "https://github.com/WilliamVenner/blackhole"
+license = "MIT"
+keywords = [
+	"blackhole",
+	"black hole",
+	"forget",
+	"ramdisk",
+	"organization",
+	"organisation",
+	"organisation-tool",
+	"organization-tool",
+	"black-hole",
+]
+description = "Semi-temporary directory for not-so-organized organized people"
+
+[package.metadata.bundle]
+name = "Blackhole"
+identifier = "com.venner.blackhole"
+icon = ["assets/blackhole.ico"]
 
 [dependencies]
 dirs = "5"
@@ -14,6 +34,7 @@ uuid = { version = "1", features = ["v4"] }
 [build-dependencies]
 build_cfg = "1"
 winres = "0.1"
+cc = "1"
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.52", features = [
@@ -27,3 +48,7 @@ windows = { version = "0.52", features = [
 	"Win32_System",
 ] }
 rust-ini = "0.20"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+libc = "0.2"
+embed_plist = "1"

@@ -153,4 +153,8 @@ impl OsBlackhole for Blackhole {
 		// Tell Explorer that Quick Access changed
 		notify_dir_changed(Path::new("shell:::{679f85cb-0220-4080-b29b-5540cc05aab6}"));
 	}
+
+	fn should_skip_purge_file(path: &Path) -> bool {
+		path.file_name() == Some(OsStr::new("desktop.ini"))
+	}
 }

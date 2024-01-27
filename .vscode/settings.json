@@ -1,0 +1,6 @@
+{
+	"editor.formatOnSave": true,
+	"rust-analyzer.check.allTargets": false,
+	"rust-analyzer.showUnlinkedFileNotification": false,
+	"rust-analyzer.check.command": "clippy"
+}
