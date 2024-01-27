@@ -14,6 +14,7 @@ use std::{
 #[link(name = "blackhole_macos_objc", kind = "static")]
 extern "C" {
 	fn objc_set_blackhole_icon(blackhole_path: *const c_char, icon_path: *const c_char) -> *const c_char;
+	fn objc_add_blackhole_to_favorites(blackhole_path: *const c_char) -> *const c_char;
 }
 
 fn set_blackhole_icon(path: &Path) -> Result<(), std::io::Error> {
@@ -43,6 +44,19 @@ fn set_blackhole_icon(path: &Path) -> Result<(), std::io::Error> {
 	}
 }
 
+fn add_blackhole_to_favorites(path: &Path) -> Result<(), std::io::Error> {
+	let blackhole_path = CString::new(path.as_os_str().as_bytes()).map_err(|err| std::io::Error::new(std::io::ErrorKind::InvalidInput, err))?;
+
+	let err = unsafe { objc_add_blackhole_to_favorites(blackhole_path.as_ptr()) };
+	if err.is_null() {
+		Ok(())
+	} else {
+		let err_str = unsafe { CStr::from_ptr(err) }.to_string_lossy();
+		unsafe { libc::free(err as *mut c_void) };
+		Err(std::io::Error::new(std::io::ErrorKind::Other, err_str))
+	}
+}
+
 impl OsBlackhole for Blackhole {
 	fn decorate_blackhole_folder(path: &Path) {
 		if let Err(err) = set_blackhole_icon(path) {
@@ -50,7 +64,11 @@ impl OsBlackhole for Blackhole {
 		}
 	}
 
-	fn chart_blackhole_folder(path: &Path) {}
+	fn chart_blackhole_folder(path: &Path) {
+		if let Err(err) = add_blackhole_to_favorites(path) {
+			log::error!("Failed to add BLACKHOLE folder to favorites: {err:?}");
+		}
+	}
 
 	fn should_skip_purge_file(path: &Path) -> bool {
 		path.file_name()
