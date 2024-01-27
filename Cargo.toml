@@ -1,6 +1,6 @@
 [package]
 name = "blackhole"
-version = "5.0.1"
+version = "5.0.2"
 authors = ["William Venner <william@venner.io>"]
 edition = "2021"
 repository = "https://github.com/WilliamVenner/blackhole"
