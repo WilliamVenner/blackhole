@@ -1,4 +1,6 @@
-#![windows_subsystem = "windows"]
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
+mod logs;
 
 use os::OsBlackhole;
 use std::{ffi::OsStr, path::PathBuf};
@@ -26,7 +28,17 @@ mod os {
 
 		/// Should this file be skipped when purging the Blackhole folder?
 		fn should_skip_purge_file(path: &Path) -> bool;
+
+		/// Sends a file or directory to the Blackhole folder.
+		fn send(&self, path: &Path) -> Result<(), std::io::Error>;
 	}
+}
+
+#[derive(Debug, Clone, Copy)]
+enum Operation {
+	Initialize,
+	Purge,
+	SendTo,
 }
 
 pub struct Blackhole {
@@ -137,20 +149,51 @@ impl Blackhole {
 	}
 }
 
-fn main() -> Result<(), std::io::Error> {
-	std::env::set_var("RUST_LOG", "blackhole=info");
-	env_logger::init();
-	log::set_max_level(log::LevelFilter::Info);
+fn run() -> Result<i32, std::io::Error> {
+	let mut args = std::env::args_os().skip(1);
+	let args_len = args.len();
+	let operation = args.next();
+	let operation = match (operation.as_deref(), args_len) {
+		(None, 0) => Operation::Initialize,
 
+		(arg, 1) if arg == Some(OsStr::new("--purge")) => Operation::Purge,
+
+		(arg, 2) if arg == Some(OsStr::new("--send")) => Operation::SendTo,
+
+		_ => {
+			eprintln!("Usage: blackhole [--purge | --send path]");
+			return Ok(1);
+		}
+	};
+
+	logs::init(operation);
 	log::info!(concat!("Blackhole v", env!("CARGO_PKG_VERSION")));
 
 	let mut blackhole = Blackhole::new()?;
-	let purge = std::env::args_os().nth(1).as_deref() == Some(OsStr::new("--purge"));
-	if purge {
-		log::info!("Purging Blackhole");
-		blackhole.purge()
-	} else {
-		log::info!("Opening Blackhole");
-		blackhole.init_and_open()
+
+	match operation {
+		Operation::Initialize => {
+			log::info!("Opening Blackhole");
+			blackhole.init_and_open()?;
+		}
+
+		Operation::Purge => {
+			log::info!("Purging Blackhole");
+			blackhole.purge()?;
+		}
+
+		Operation::SendTo => {
+			let path = PathBuf::from(args.next().unwrap());
+
+			log::info!("Sending {} to the Blackhole", path.display());
+
+			blackhole.send(&path)?;
+		}
 	}
+
+	Ok(0)
+}
+
+fn main() -> Result<(), std::io::Error> {
+	std::process::exit(run()?)
 }

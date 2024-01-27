@@ -41,7 +41,7 @@
 		<DirectoryRef Id="SendToFolder">
 			<Component Id="ApplicationSendToShortcut" Guid="13FF38CE-787D-46A6-A2D3-06C7B5663A88">
 				<Shortcut Id="ApplicationSendToShortcut"
-					Name="Blackhole"
+					Name="BLACKHOLE"
 					Description="Sends the file or folder to your Blackhole"
 					Target="[APPLICATIONFOLDER]blackhole.exe"
 					Arguments="--send"

@@ -8,11 +8,14 @@ use std::{
 	process::Command,
 };
 use windows::{
-	core::PCSTR,
+	core::{HRESULT, PCSTR},
 	Win32::{
+		Foundation::{FALSE, HWND},
 		Storage::FileSystem::{SetFileAttributesA, FILE_ATTRIBUTE_HIDDEN, FILE_ATTRIBUTE_READONLY, FILE_ATTRIBUTE_SYSTEM, FILE_FLAGS_AND_ATTRIBUTES},
 		System::Threading::CREATE_NO_WINDOW,
-		UI::Shell::{SHChangeNotify, SHCNE_UPDATEDIR, SHCNE_UPDATEIMAGE, SHCNF_FLUSH, SHCNF_PATHA},
+		UI::Shell::{
+			SHChangeNotify, SHFileOperationA, FOF_ALLOWUNDO, FO_MOVE, SHCNE_UPDATEDIR, SHCNE_UPDATEIMAGE, SHCNF_FLUSH, SHCNF_PATHA, SHFILEOPSTRUCTA,
+		},
 	},
 };
 
@@ -156,5 +159,35 @@ impl OsBlackhole for Blackhole {
 
 	fn should_skip_purge_file(path: &Path) -> bool {
 		path.file_name() == Some(OsStr::new("desktop.ini"))
+	}
+
+	fn send(&self, path: &Path) -> Result<(), std::io::Error> {
+		let to = CString::new(
+			self.path
+				.join(
+					path.file_name()
+						.ok_or_else(|| std::io::Error::new(std::io::ErrorKind::InvalidInput, "Invalid path"))?,
+				)
+				.into_os_string()
+				.into_encoded_bytes(),
+		)
+		.map_err(|err| std::io::Error::new(std::io::ErrorKind::InvalidInput, err))?;
+
+		let from = CString::new(path.as_os_str().as_encoded_bytes()).map_err(|err| std::io::Error::new(std::io::ErrorKind::InvalidInput, err))?;
+
+		let mut fileop = SHFILEOPSTRUCTA {
+			hwnd: HWND(0),
+			wFunc: FO_MOVE,
+			pFrom: from.as_ptr() as *mut i8,
+			pTo: to.as_ptr() as *mut i8,
+			fFlags: FOF_ALLOWUNDO.0 as _,
+			fAnyOperationsAborted: FALSE,
+			hNameMappings: std::ptr::null_mut(),
+			lpszProgressTitle: PCSTR(std::ptr::null_mut()),
+		};
+
+		HRESULT(unsafe { SHFileOperationA(&mut fileop) }).ok()?;
+
+		Ok(())
 	}
 }
