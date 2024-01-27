@@ -26,31 +26,21 @@ _And much more..._
 
 [Click here](https://github.com/WilliamVenner/blackhole/releases) for pre-built binaries.
 
-## Requirements
-
-* Your operating system must have some form of "Recycle Bin" or "Trash"
-* Your operating system must provide you a home directory
-* The program may require administrative/elevated privileges on some operating systems
-
 ## Windows
 
-Blackhole will automatically add itself to your startup programs via the registry.
-
-If contents are present, the `BLACKHOLE` directory will be moved to the Recycle Bin every time you start up your computer.
-
-The `BLACKHOLE` directory will automatically be added to the Quick Access locations.
+* Blackhole will automatically add itself to your startup programs via the registry.
+* The `BLACKHOLE` directory will be moved to the Recycle Bin every time you login, if contents are present.
+* The `BLACKHOLE` directory will automatically be added to the Quick Access locations.
 
 #### File Location
 
 `%USERPROFILE%/BLACKHOLE`
 
-## Linux & MacOS
+## macOS
 
-Automatically scheduling the Blackhole to be purged at startup is currently only supported on macOS.
-
-If you know Rust and a bit about your favourite OS, pull requests are appreciated.
-
-If you simply want to do it yourself, just run the program with the `--purge` flag at startup.
+* Blackhole will automatically add itself to your login items when you first run the program.
+* The `BLACKHOLE` directory will be moved to the Trash every time you login, if contents are present.
+* The `BLACKHOLE` directory will automatically be added to the Finder sidebar.
 
 #### File Location
 
