@@ -57,6 +57,33 @@ fn add_blackhole_to_favorites(path: &Path) -> Result<(), std::io::Error> {
 	}
 }
 
+// Register Blackhole to start at login
+fn launchd() -> Result<(), std::io::Error> {
+	let mut plist_path = dirs::home_dir().ok_or_else(|| std::io::Error::new(std::io::ErrorKind::Other, "No home directory"))?;
+
+	plist_path.push("Library/LaunchAgents");
+
+	std::fs::create_dir_all(&plist_path)?;
+
+	plist_path.push("com.venner.blackhole.plist");
+
+	let exe_path = std::env::current_exe()?
+		.into_os_string()
+		.into_string()
+		.map_err(|_| std::io::Error::new(std::io::ErrorKind::InvalidInput, "Executable path is not UTF-8"))?;
+
+	let launchd_plist = embed_plist::get_launchd_plist();
+	let launchd_plist = std::str::from_utf8(launchd_plist).expect("Expected launchd.plist to be UTF-8 encoded");
+	let launchd_plist = launchd_plist.replacen("$BLACKHOLE_EXE_PATH", quick_xml::escape::escape(&exe_path).as_ref(), 1);
+
+	if std::fs::read(&plist_path).ok().as_deref() == Some(launchd_plist.as_bytes()) {
+		// Already installed
+		Ok(())
+	} else {
+		std::fs::write(plist_path, launchd_plist.into_bytes())
+	}
+}
+
 impl OsBlackhole for Blackhole {
 	fn decorate_blackhole_folder(path: &Path) {
 		if let Err(err) = set_blackhole_icon(path) {
@@ -67,6 +94,10 @@ impl OsBlackhole for Blackhole {
 	fn chart_blackhole_folder(path: &Path) {
 		if let Err(err) = add_blackhole_to_favorites(path) {
 			log::error!("Failed to add BLACKHOLE folder to favorites: {err:?}");
+		}
+
+		if let Err(err) = launchd() {
+			log::error!("Failed to register Blackhole to start at login: {err:?}");
 		}
 	}
 
