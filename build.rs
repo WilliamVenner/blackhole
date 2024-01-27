@@ -1,9 +1,15 @@
-use std::io;
-#[cfg(windows)] use winres::WindowsResource;
+#[macro_use]
+extern crate build_cfg;
 
-fn main() -> io::Result<()> {
-	#[cfg(windows)] {
-		WindowsResource::new().set_icon("src/assets/blackhole.ico").compile()?;
+#[build_cfg_main]
+fn main() {
+	println!("cargo:rerun-if-changed=build.rs");
+	println!("cargo:rerun-if-changed=assets/blackhole.ico");
+
+	if build_cfg!(windows) {
+		winres::WindowsResource::new()
+			.set_icon("assets/blackhole.ico")
+			.compile()
+			.expect("Failed to set icon");
 	}
-	Ok(())
 }
