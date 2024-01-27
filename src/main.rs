@@ -213,5 +213,19 @@ fn run() -> Result<i32, std::io::Error> {
 }
 
 fn main() -> Result<(), std::io::Error> {
-	std::process::exit(run()?)
+	match run() {
+		Ok(code) => std::process::exit(code),
+		Err(err) => {
+			log::error!("Fatal error: {}", err);
+
+			native_dialog::MessageDialog::new()
+				.set_title("Blackhole")
+				.set_text(&err.to_string())
+				.set_type(native_dialog::MessageType::Error)
+				.show_alert()
+				.ok();
+
+			Err(err)
+		}
+	}
 }

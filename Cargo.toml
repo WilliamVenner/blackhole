@@ -1,6 +1,6 @@
 [package]
 name = "blackhole"
-version = "5.0.0"
+version = "5.0.1"
 authors = ["William Venner <william@venner.io>"]
 edition = "2021"
 repository = "https://github.com/WilliamVenner/blackhole"
@@ -36,6 +36,7 @@ log = "0.4"
 env_logger = "0.9"
 uuid = { version = "1", features = ["v4"] }
 chrono = "0.4"
+native-dialog = "0.7"
 
 [build-dependencies]
 build_cfg = "1"
