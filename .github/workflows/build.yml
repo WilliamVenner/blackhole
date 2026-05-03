@@ -48,11 +48,8 @@ jobs:
       - name: Install cargo bundle
         run: cargo install cargo-bundle
 
-      - name: Build x86_64
-        run: cargo build --release --target x86_64-apple-darwin
-
-      - name: Build aarch64
-        run: cargo build --release --target aarch64-apple-darwin
+      - name: Build
+        run: cargo build --release --target x86_64-apple-darwin --target aarch64-apple-darwin
 
       - name: Generate RGBA PNG icons for bundling
         run: |
