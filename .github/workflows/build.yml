@@ -42,14 +42,30 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install Rust targets
+        run: rustup target add x86_64-apple-darwin aarch64-apple-darwin
+
       - name: Install cargo bundle
         run: cargo install cargo-bundle
 
-      - name: Build
-        run: cargo bundle --release
+      - name: Build x86_64
+        run: cargo build --release --target x86_64-apple-darwin
 
-      - name: Rename
-        run: mv target/release/bundle/osx/Blackhole.app Blackhole.app
+      - name: Build aarch64
+        run: cargo build --release --target aarch64-apple-darwin
+
+      - name: Bundle
+        run: cargo bundle --release --target aarch64-apple-darwin
+
+      - name: Create universal binary
+        run: |
+          APP="target/aarch64-apple-darwin/release/bundle/osx/Blackhole.app"
+          BIN_NAME="$(ls "$APP/Contents/MacOS")"
+          lipo -create -output "$APP/Contents/MacOS/$BIN_NAME" \
+            "target/x86_64-apple-darwin/release/$BIN_NAME" \
+            "target/aarch64-apple-darwin/release/$BIN_NAME"
+          lipo -info "$APP/Contents/MacOS/$BIN_NAME"
+          mv "$APP" Blackhole.app
 
       - name: ZIP
         run: zip -r Blackhole.app.zip Blackhole.app
