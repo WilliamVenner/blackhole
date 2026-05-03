@@ -54,6 +54,16 @@ jobs:
       - name: Build aarch64
         run: cargo build --release --target aarch64-apple-darwin
 
+      - name: Generate RGBA PNG icons for bundling
+        run: |
+          mkdir -p target/macos-icons
+          for size in 32 64 128 256 512 1024; do
+            magick assets/blackhole.ico -alpha on -resize ${size}x${size} \
+              -define png:color-type=6 "PNG32:target/macos-icons/icon-${size}.png"
+          done
+          ICONS='["target/macos-icons/icon-32.png", "target/macos-icons/icon-64.png", "target/macos-icons/icon-128.png", "target/macos-icons/icon-256.png", "target/macos-icons/icon-512.png", "target/macos-icons/icon-1024.png"]'
+          sed -i '' "s|icon = \[\"assets/blackhole.ico\"\]|icon = ${ICONS}|" Cargo.toml
+
       - name: Bundle
         run: cargo bundle --release --target aarch64-apple-darwin
 
